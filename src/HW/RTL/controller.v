@@ -1,7 +1,7 @@
 module controller
 #(
-    parameter       MAX_ROW = ;
-    parameter       MAX_COL = ;
+    parameter       MAX_ROW = 540;
+    parameter       MAX_COL = 540;
 )
 (
     //================================
@@ -24,7 +24,7 @@ module controller
     // From
     
     // To
-
+    output  wire           fetch_run_o,
     //================================
     //        Preprocessor 
     //================================
@@ -60,7 +60,8 @@ localparam          S_IDLE      = 3'd0,
 
 
 reg     [3:0]       state,      state_n;
-wire ;
+
+wire fetch_run;
 
 
 always @(posedge clk) begin
@@ -75,35 +76,45 @@ end
 always @(*) begin
     //Not For Make LATCH
     state_n                 = state;
+    fetch_run               = 'd0;
 
     case(state)
         S_IDLE : begin
             if(start_i) begin
                 state_n         = S_FETCH;
 
+                fetch_run       = 1'd1;
             end
         end
         S_FETCH : begin
             if(fetch_done_i) begin
                 state_n         = S_CORE;
+        
                 
             end
         end
         S_CORE : begin
             if(core_done_i) begin
                 state_n         = S_FETCH;
+                
             end
         end
-        S_VGA_RUN : begin
-            if(vga_run_i) begin
-                state_n         = S_VGA_RUN;
-            end
-        end
-        S_DONE : begin
-            state_n             = S_IDLE;
-        end
+    // S_VGA_RUN : begin
+    //     if(vga_run_i) begin
+    //         state_n         = S_VGA_RUN;
+    //     end
+    // end
+    // S_DONE : begin
+    //     state_n             = S_IDLE;
+    // end
     endcase
 end
+
+
+
+// =============== Memory Controller ========
+assign fetch_run_o          = fetch_run;
+assign 
 
 
 endmodule

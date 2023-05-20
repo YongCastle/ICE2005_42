@@ -54,10 +54,10 @@ module preprocess
     //======================================================
     //              DEBUGG
     //======================================================
-    output    [1:0]                 cnt_buf_row,   
-    output    [9:0]                 cnt_buf_col,
+    output    [1:0]                 cnt_buf_row_o,   
+    output    [9:0]                 cnt_buf_col_o,
 
-    output    [9:0]                 cnt_pos_col
+    output    [9:0]                 cnt_pos_col_o
 );
 
 parameter       MAX_BUF_ROWS = 3;
@@ -110,9 +110,9 @@ assign fetch_done_o     = ((cnt_buf_row == MAX_BUF_ROWS-1) && (cnt_buf_col == MA
 //Filter POS
 always @(posedge clk) begin
     if(!rst_n) begin
-        buffer_0[0:MAX_IMG_COLS+1]              <= 'd0;
-        buffer_1[0:MAX_IMG_COLS+1]              <= 'd0;
-        buffer_2[0:MAX_IMG_COLS+1]              <= 'd0;
+        buffer_0[MAX_IMG_COLS+2]              <= 'd0;
+        buffer_1[MAX_IMG_COLS+2]              <= 'd0;
+        buffer_2[MAX_IMG_COLS+2]              <= 'd0;
     end
     else begin
         case(cnt_buf_row)

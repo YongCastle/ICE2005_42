@@ -1,27 +1,29 @@
 `timescale 1ns / 1ps
 
-module buzzer_test
+module buzzer_module
 #(
    parameter HOST_HZ    = 27'd100_000_000    // HOST Hertz
 )
 (
-   /*****************************************************
-   ** Input Signal Define                              **
-   *****************************************************/
-   input  wire             clk         ,
-   input  wire             rstb        ,
+   // ============= System ===================
+   input  wire             clk           ,
+   input  wire             rst_n         ,
+
+   // ============ Acc_BUF ======================
    
-   //input  wire [03:0]      tone_sel    ,
-   input  wire [02:0]      tone_sel    ,   // dip_sw 1, 2, 3
-   /*****************************************************
-   ** Output Signal Define                             **
-   *****************************************************/ 
-   output                  buzzer_out
+   //                     _____________
+   // buzzer_on_i   _____|  
+   input  wire             buzzer_on_i  ,
+
+   // ============= Output Signal Define ==================
+   output                  buzzer_out_o
 );
 
+reg [9:0]      cnt_img_row;      // Which is 540, (540x540 Image Using)
 reg tone_out;
 
-assign buzzer_out = tone_out;
+assign buzzer_out_o = tone_out;
+
 /*****************************************************
 ** Parameter Definition                             **
 *****************************************************/
@@ -45,20 +47,35 @@ reg   [03:0]   tone_sel_buf;
 
 
 /*****************************************************
+** Count Run Signal For ROW                         **
+*****************************************************/
+always @(posedge clk) begin
+   if(!rst_n) begin
+      cnt_img_row    <= 'd0;
+   end
+   else begin
+      if(buzzer_on_i) begin
+         cnt_img_row = cnt_img_row + 'd1;
+      end
+   end
+end
+
+
+/*****************************************************
 ** Musical Scale Select
 *****************************************************/
 always @(*) begin 
-   case (tone_sel)
-      4'd0 : hz_sel  <= Mute  ;
-      4'd1 : hz_sel  <= Do    ;
-      4'd2 : hz_sel  <= Re    ;
-      4'd3 : hz_sel  <= Mi    ;
-      4'd4 : hz_sel  <= Pa    ;
-      4'd5 : hz_sel  <= Sol   ;
-      4'd6 : hz_sel  <= Ra    ;
-      4'd7 : hz_sel  <= Si    ;
-      4'd8 : hz_sel  <= Hi_Do ;
-      default : hz_sel  <= Mute;
+   case (tone_sel_i)
+      4'd0 : hz_sel  = Mute  ;
+      4'd1 : hz_sel  = Do    ;
+      4'd2 : hz_sel  = Re    ;
+      4'd3 : hz_sel  = Mi    ;
+      4'd4 : hz_sel  = Pa    ;
+      4'd5 : hz_sel  = Sol   ;
+      4'd6 : hz_sel  = Ra    ;
+      4'd7 : hz_sel  = Si    ;
+      4'd8 : hz_sel  = Hi_Do ;
+      default : hz_sel  = Mute;
    endcase
 end
 
@@ -66,16 +83,16 @@ end
 /*****************************************************
 ** Generate Tone Pulse
 *****************************************************/
-always @(posedge clk or negedge rstb) begin 
-   if (!rstb) begin
+always @(posedge clk) begin 
+   if (!rst_n) begin
       hz_cnt         <= 'd0;
       tone_out       <= 1'b0;
       tone_sel_buf   <= 4'd0;
    end
    else begin
-      tone_sel_buf   <= tone_sel;
+      tone_sel_buf   <= tone_sel_i;
       
-      if (tone_sel != tone_sel_buf) begin
+      if (tone_sel_i != tone_sel_buf) begin
          hz_cnt      <= 'd0;
          tone_out    <= 1'b0;
       end
