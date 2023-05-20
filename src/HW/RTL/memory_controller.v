@@ -26,19 +26,14 @@ module memory_controller
     input                   fetch_run_i,
     output                  fetch_done_o,
 
-    //============== DEBUGGING ================
     output wire [9:0]       cnt_img_row_o,
     output wire [9:0]       cnt_img_col_o
 
 
 );
 
-reg [9:0] cnt_img_row;
-reg [9:0] cnt_img_col; 
-
-assign cnt_img_row_o = cnt_img_row;
-assign cnt_img_col_o = cnt_img_col;
-
+reg [9:0] cnt_img_row, cnt_img_row_d, cnt_img_row_2d;
+reg [9:0] cnt_img_col, cnt_img_col_d, cnt_img_col_2d; 
 
 
 // BRAM Read Latency is 2 cycle So we need Delay
@@ -61,20 +56,32 @@ always @(posedge clk) begin
 end
 
 
-reg fetch_run_d, fetch_run_2d;
-reg fetch_done_d, fetch_done_2d;
+reg fetch_run_d, fetch_run_2d, fetch_run_3d;
+reg fetch_done_d, fetch_done_2d, fetch_done_3d;
 always @(posedge clk) begin
     if(!rst_n) begin
         fetch_run_d         <= 'd0;
         fetch_done_d        <= 'd0;
         fetch_run_2d        <= 'd0;
+        fetch_run_3d        <= 'd0;
         fetch_done_2d       <= 'd0;
+        fetch_done_3d       <= 'd0;
+        cnt_img_col_d       <= 'd0;
+        cnt_img_col_2d      <= 'd0;
+        cnt_img_row_d       <= 'd0;
+        cnt_img_row_2d      <= 'd0;
     end
     else begin
         fetch_run_d         <= fetch_run_i;
         fetch_done_d        <= fetch_done;
         fetch_run_2d        <= fetch_run_d;
+        fetch_run_3d        <= fetch_run_2d;
         fetch_done_2d       <= fetch_done_d;
+        fetch_done_3d       <= fetch_done_2d;
+        cnt_img_col_d       <= cnt_img_col;
+        cnt_img_col_2d      <= cnt_img_col_d;
+        cnt_img_row_d       <= cnt_img_row;
+        cnt_img_row_2d      <= cnt_img_row_d;
     end
 end
 
@@ -85,7 +92,7 @@ always @(posedge clk) begin
         addr     <= 'd0;
     end
     else begin
-        if(fetch_run_i && !fetch_done_o) begin
+        if(fetch_run_i) begin
             if(addr == MAX_ROW*MAX_COL-1) begin
                 addr    <= 'd0;
             end
@@ -131,12 +138,14 @@ assign d2mem_o          = 'd0;
 
 // ================== TO PREPROCESS
 assign data_o           = (data_en_o)? mem2d_i : 'd0;
-assign data_en_o        = fetch_run_2d;
+assign data_en_o        = fetch_run_3d;
 // ================== TO CONTORLLER
     //Fetch DONE
     //                     __
     // fetch_done_o   :___|  |___
     //
-assign fetch_done_o     = fetch_done_2d;
+assign fetch_done_o     = fetch_done_3d;
+assign cnt_img_row_o    = cnt_img_row_2d;
+assign cnt_img_col_o    = cnt_img_col_2d;
 
 endmodule
