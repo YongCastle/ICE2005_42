@@ -10,10 +10,9 @@ module preprocess
     //      Controller
     //================================
     //From
-    input   wire            core_en_i,
+    input   wire            core_run_i,
 
     //To
-    output  wire            fetch_done_o,
     output  wire            core_done_o,
 
     //================================
@@ -21,7 +20,7 @@ module preprocess
     //================================
     //From
     input   wire [7:0]      data_i,
-    input   wire            fetch_en_i,   
+    input   wire            data_en_i,   
     //To
 
     //================================
@@ -84,7 +83,7 @@ always @(posedge clk) begin
         cnt_buf_col         <= 'd0;
     end
     else begin
-        if(fetch_en_i) begin
+        if(data_en_i) begin
             if(cnt_buf_col == MAX_IMG_COLS-1) begin
                 cnt_buf_col         <= 'd0;
                 if((cnt_buf_row == MAX_BUF_ROWS-1) && (cnt_buf_col == MAX_IMG_COLS-1)) begin
@@ -101,11 +100,6 @@ always @(posedge clk) begin
     end
 end
 
-//Fetch DONE
-//                     __
-// fetch_done_o   :___|  |___
-//
-assign fetch_done_o     = ((cnt_buf_row == MAX_BUF_ROWS-1) && (cnt_buf_col == MAX_IMG_COLS-1))? 1 : 0;
 
 //Filter POS
 always @(posedge clk) begin
@@ -131,7 +125,7 @@ always @(posedge clk) begin
         cnt_pos_col         <= 'd0;
     end
     else begin
-        if(core_en_i) begin
+        if(core_run_i) begin
             if(cnt_pos_col == MAX_IMG_COLS-1) begin
                 cnt_pos_col         <= 'd0;
             end
@@ -147,24 +141,27 @@ end
 //                        __
 // n_segment_up_o   : ___|  |___
 
+
+// ======== TO Controller ===========================
 assign core_done_o      = (cnt_pos_col == MAX_IMG_COLS-1)? 1 : 0;
+
+// ======== TO CORE ===========================
+assign data_0_0_o       = (core_run_i)? buffer_0[cnt_pos_col+0] : 'd0;
+assign data_0_1_o       = (core_run_i)? buffer_0[cnt_pos_col+1] : 'd0;
+assign data_0_2_o       = (core_run_i)? buffer_0[cnt_pos_col+2] : 'd0;
+
+assign data_1_0_o       = (core_run_i)? buffer_1[cnt_pos_col+0] : 'd0;
+assign data_1_1_o       = (core_run_i)? buffer_1[cnt_pos_col+1] : 'd0;
+assign data_1_2_o       = (core_run_i)? buffer_1[cnt_pos_col+2] : 'd0;
+
+assign data_2_0_o       = (core_run_i)? buffer_2[cnt_pos_col+0] : 'd0;
+assign data_2_1_o       = (core_run_i)? buffer_2[cnt_pos_col+1] : 'd0;
+assign data_2_2_o       = (core_run_i)? buffer_2[cnt_pos_col+2] : 'd0;
+
+
+assign core_en_o        = core_run_i;
+
+// ======== TO  ===========================
 assign n_segment_up_o   = (cnt_pos_col == MAX_IMG_COLS-1)? 1 : 0;
-
-
-
-assign data_0_0_o       = (core_en_i)? buffer_0[cnt_pos_col+0] : 'd0;
-assign data_0_1_o       = (core_en_i)? buffer_0[cnt_pos_col+1] : 'd0;
-assign data_0_2_o       = (core_en_i)? buffer_0[cnt_pos_col+2] : 'd0;
-
-assign data_1_0_o       = (core_en_i)? buffer_1[cnt_pos_col+0] : 'd0;
-assign data_1_1_o       = (core_en_i)? buffer_1[cnt_pos_col+1] : 'd0;
-assign data_1_2_o       = (core_en_i)? buffer_1[cnt_pos_col+2] : 'd0;
-
-assign data_2_0_o       = (core_en_i)? buffer_2[cnt_pos_col+0] : 'd0;
-assign data_2_1_o       = (core_en_i)? buffer_2[cnt_pos_col+1] : 'd0;
-assign data_2_2_o       = (core_en_i)? buffer_2[cnt_pos_col+2] : 'd0;
-
-
-assign core_en_o    = core_en_i;
 
 endmodule

@@ -1,67 +1,48 @@
-module controller
+module controller_module
 #(
-    parameter       MAX_ROW = 540;
-    parameter       MAX_COL = 540;
+    parameter       MAX_ROW = 540,
+    parameter       MAX_COL = 540
 )
 (
-    //================================
-    //             System
-    //================================
+    //============== SYSTEM ====================
     input   wire           clk,
     input   wire           rst_n,
 
-    //================================
-    //             Switch
-    //================================
+    //======================= Switch ================
     // From
     input   wire           start_i,
-    input   wire           vga_run_i,
     // To
 
-    //================================
-    //       Memory Controller
-    //================================
-    // From
-    
-    // To
-    output  wire           fetch_run_o,
-    //================================
-    //        Preprocessor 
-    //================================
+    //============ Memory Controller ==================
     // From
     input   wire           fetch_done_i,
+    // To
+    output  wire           fetch_run_o,
+
+    //=============== Preprocessor ==================
+    // From
     input   wire           core_done_i,
     // To
-    output  wire           
+    output  wire           core_run_o,
 
-    //================================
-    //             CORE
-    //================================
-    // From
 
-    // To
-
-    //================================
-    //              VGA
-    //================================
-    // From
-
-    // To
-
-    //For Debugging
+    //==================== For Debugging ============================
+    output wire [2:0]       state_o,    
+    output wire [2:0]       state_n_o
     
 );
 
 localparam          S_IDLE      = 3'd0,
                     S_FETCH     = 3'd1,           // BRAM --> (MEM CTR) --> BUFFER
                     S_CORE      = 3'd2,           // BUFFER --> CORE
-                    S_VGA_RUN   = 3'd3,
-                    S_DONE      = 3'd4;
+                    S_DONE      = 3'd3;
 
 
-reg     [3:0]       state,      state_n;
+reg     [2:0]       state,      state_n;
 
-wire fetch_run;
+reg    fetch_run;
+reg    core_run;
+reg    done;
 
 
 always @(posedge clk) begin
@@ -76,37 +57,37 @@ end
 always @(*) begin
     //Not For Make LATCH
     state_n                 = state;
+
     fetch_run               = 'd0;
+    core_run                = 'd0;
+    done                    = 'd0;
 
     case(state)
         S_IDLE : begin
             if(start_i) begin
-                state_n         = S_FETCH;
-
-                fetch_run       = 1'd1;
+                state_n             = S_FETCH;
             end
         end
         S_FETCH : begin
+            fetch_run           = 1'd1;
+
             if(fetch_done_i) begin
-                state_n         = S_CORE;
-        
-                
+                state_n             = S_CORE;
             end
         end
         S_CORE : begin
+            core_run            = 1'd1;
+
             if(core_done_i) begin
-                state_n         = S_FETCH;
-                
+                state_n             = S_DONE;
             end
         end
-    // S_VGA_RUN : begin
-    //     if(vga_run_i) begin
-    //         state_n         = S_VGA_RUN;
-    //     end
-    // end
-    // S_DONE : begin
-    //     state_n             = S_IDLE;
-    // end
+        S_DONE : begin
+            done                = 1'd1;
+            if(start_i) begin
+                state_n             = S_IDLE;
+            end
+        end
     endcase
 end
 
@@ -114,7 +95,13 @@ end
 
 // =============== Memory Controller ========
 assign fetch_run_o          = fetch_run;
-assign 
 
+// =============== Preprocess ========
+assign core_run_o           = core_run;
+
+
+// ===========DEBUG ========
+assign state_o        = state;
+assign state_n_o      = state_n;
 
 endmodule

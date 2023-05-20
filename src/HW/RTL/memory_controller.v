@@ -19,6 +19,7 @@ module memory_controller
 
     //============== PREPROCESS ==============
     output wire [7:0]       data_o,
+    output wire             data_en_o,
 
 
     //============== Controller ================
@@ -35,29 +36,45 @@ module memory_controller
 reg [9:0] cnt_img_row;
 reg [9:0] cnt_img_col; 
 
-wire fetch_done;
-assign fetch_done     = ((cnt_img_row == 539) && (cnt_img_col == 539));
-
 assign cnt_img_row_o = cnt_img_row;
 assign cnt_img_col_o = cnt_img_col;
 
 
 
 // BRAM Read Latency is 2 cycle So we need Delay
+wire fetch_done;
+assign fetch_done     = (cnt_fetch == 3*MAX_COL-1);
+
+reg [10:0]          cnt_fetch;  //Buffer Size 3 x 540
+always @(posedge clk) begin
+    if(!rst_n) begin
+        cnt_fetch       <= 0;
+    end
+    else begin
+        if(cnt_fetch == 3*MAX_COL-1) begin
+            cnt_fetch       <= 'd0;
+        end
+        else begin
+            cnt_fetch       <= cnt_fetch + 'd1;
+        end
+    end
+end
+
+
 reg fetch_run_d, fetch_run_2d;
 reg fetch_done_d, fetch_done_2d;
 always @(posedge clk) begin
     if(!rst_n) begin
-        fetch_run_d     <= 'd0;
-        fetch_done_d    <= 'd0;
-        fetch_run_2d    <= 'd0;
-        fetch_done_2d   <= 'd0;
+        fetch_run_d         <= 'd0;
+        fetch_done_d        <= 'd0;
+        fetch_run_2d        <= 'd0;
+        fetch_done_2d       <= 'd0;
     end
     else begin
-        fetch_run_d     <= fetch_run_i;
-        fetch_done_d    <= fetch_done;
-        fetch_run_2d    <= fetch_run_d;
-        fetch_done_2d   <= fetch_done_d;
+        fetch_run_d         <= fetch_run_i;
+        fetch_done_d        <= fetch_done;
+        fetch_run_2d        <= fetch_run_d;
+        fetch_done_2d       <= fetch_done_d;
     end
 end
 
@@ -69,7 +86,10 @@ always @(posedge clk) begin
     end
     else begin
         if(fetch_run_i && !fetch_done_o) begin
-            if(addr == 540*540-1) begin
+            if(addr == MAX_ROW*MAX_COL-1) begin
+                addr    <= 'd0;
+            end
+            else begin
                 addr     <= addr + 'd1;
             end
         end
@@ -86,10 +106,10 @@ always @(posedge clk) begin
     else begin
         //Delay Cycle
         if(fetch_run_i) begin
-            if(cnt_img_col == 539) begin
+            if(cnt_img_col == MAX_COL-1) begin
                 cnt_img_col     <= 'd0;
 
-                if(cnt_img_row == 539) begin
+                if(cnt_img_row == MAX_ROW-1) begin
                     cnt_img_row         <= 'd0;
                 end
                 else begin
@@ -103,16 +123,20 @@ always @(posedge clk) begin
     end
 end
 
-// TO BRAM
+// =================== TO BRAM
 assign ena_o            = (fetch_run_i)? 1'd1 : 1'd0;
 assign wea_o            = 1'd0;
 assign addr_o           = addr;
 assign d2mem_o          = 'd0;
 
-// TO PREPROCESS
-assign data_o           = (fetch_run_2d)? mem2d_i : 'd0;
-
-// TO CONTORLLER
+// ================== TO PREPROCESS
+assign data_o           = (data_en_o)? mem2d_i : 'd0;
+assign data_en_o        = fetch_run_2d;
+// ================== TO CONTORLLER
+    //Fetch DONE
+    //                     __
+    // fetch_done_o   :___|  |___
+    //
 assign fetch_done_o     = fetch_done_2d;
 
 endmodule
