@@ -1,7 +1,7 @@
 module preprocess_module
 #(
     parameter       MAX_ROW = 540,
-    parameter       MAX_COl = 540
+    parameter       MAX_COL = 540
 )
 (
     //================================
@@ -47,19 +47,17 @@ module preprocess_module
     output    [9:0]                 cnt_pos_col_o
 );
 
-parameter       CNT_IMG_COLS = 10;
-
 //8x(3x(540))       
-reg [7:0]     buffer_0[MAX_COL];     
-reg [7:0]     buffer_1[MAX_COL];   
-reg [7:0]     buffer_2[MAX_COL];   
+reg [7:0]     buffer_0[0:MAX_COL-1];     
+reg [7:0]     buffer_1[0:MAX_COL-1];   
+reg [7:0]     buffer_2[0:MAX_COL-1];   
 
 //MEM controller --> BUFFER
-reg [1:0]                                   cnt_buf_row;            //Count row
-reg [CNT_IMG_COLS - 1:0]                    cnt_buf_col;            //Count col
+reg [1:0]                    cnt_buf_row;            //Count row
+reg [9:0]                    cnt_buf_col;            //Count col
 
 //Position Buffer : BUF --> CORE (3x3 Filter)
-reg [CNT_IMG_COLS - 1:0]                    cnt_pos_col;
+reg [9:0]                    cnt_pos_col;
 
 
 //Fetch CNT
@@ -90,9 +88,9 @@ end
 //Filter POS
 always @(posedge clk) begin
     if(!rst_n) begin
-        buffer_0[MAX_COL]              <= 'd0;
-        buffer_1[MAX_COL]              <= 'd0;
-        buffer_2[MAX_COL]              <= 'd0;
+        buffer_0[MAX_COL]                      <= 'd0;
+        buffer_1[MAX_COL]                      <= 'd0;
+        buffer_2[MAX_COL]                      <= 'd0;
     end
     else begin
         case(cnt_buf_row)

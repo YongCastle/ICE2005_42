@@ -102,31 +102,26 @@ controller_module U_CONTROLLER
 );
 
 
-// SOBER_TOP   U_SOBER_TOP
-// (
-//     //========== SYSTEM =====================
-//     .CLK                (clk),
-//     .RST_N              (rst_n),
+SOBEL_TOP   U_SOBEL_TOP
+(
+    //========== SYSTEM =====================
+    .CLK                (clk),
+    .RST_N              (rst_n),
 
-//     //========== Memory Controller ==========
-//     .DATA_I             (data_w),
-//     .DATA_EN_I          (data_en_w),
+    //========== Memory Controller ==========
+    .DATA_I             (data_w),
+    .DATA_EN_I          (data_en_w),
 
-//     //========== Controller ================
-//     .CORE_RUN_I         (core_run_w),
+    //========== Controller ================
+    .CORE_RUN_I         (core_run_w),
+    .CORE_DONE_O        (core_done_w),
 
-//     //========== Accmulator ====================
-//     .PIXEL_O            (pixel_w),
-//     .EN_O               (pixel_en_w),
-//     //========== Controller ================
-//     .CORE_DONE_O        (core_done_w)
+    //========== Accmulator ====================
+    .PIXEL_O            (pixel_w),
+    .PIXEL_EN_O         (pixel_en_w)
 
-//     //========== VGA ==============
-
-//     //========== 7-Segment ============== 
-    
-//     //========== Switch ==============
-// );
+    //========== VGA ==============
+);
 
 
 //clock

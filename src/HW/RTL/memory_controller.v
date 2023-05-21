@@ -37,10 +37,11 @@ reg [9:0] cnt_img_col, cnt_img_col_d, cnt_img_col_2d;
 
 
 // BRAM Read Latency is 2 cycle So we need Delay
-wire fetch_done;
+wire                fetch_done;
+reg [10:0]          cnt_fetch;  //Buffer Size 3 x 540
+
 assign fetch_done     = (cnt_fetch == 3*MAX_COL-1);
 
-reg [10:0]          cnt_fetch;  //Buffer Size 3 x 540
 always @(posedge clk) begin
     if(!rst_n) begin
         cnt_fetch       <= 0;

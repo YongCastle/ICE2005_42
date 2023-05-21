@@ -6,7 +6,11 @@
 //     |______ core.v
 //
 
-module SOBER_TOP
+module SOBEL_TOP
+#(
+    parameter       MAX_ROW = 540,
+    parameter       MAX_COl = 540
+)
 (
     //========== SYSTEM =====================
     input wire              CLK,
@@ -37,7 +41,7 @@ wire [7:0]       DATA_2_2;
 
 wire             core_en_w;
 
-preprocess_module U_pre 
+preprocess_module U_pre
 (
     //======== SYSTEM ========================
     .clk                    (CLK),
@@ -77,8 +81,8 @@ core_module U_CORE
     .data_2_2_i             (DATA_2_2),
     .core_en_i              (core_en_w),
     //======== VGA ===================
-    .pixle_o                (PIXEL_O), 
-    .en_o                   (PIXEL_EN_O)       
+    .pixel_o                (PIXEL_O), 
+    .pixel_en_o             (PIXEL_EN_O)       
 );
 
 endmodule
