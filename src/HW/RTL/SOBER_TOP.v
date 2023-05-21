@@ -1,15 +1,13 @@
 //
 // Description :
 // SOBER_TOP
-//     |______ Controller.v
+//     |
 //     |______ preprocess.v
 //     |______ core.v
 //
 
 module SOBER_TOP
 (
-    //========== INPUT ======================
-
     //========== SYSTEM =====================
     input wire              CLK,
     input wire              RST_N,
@@ -20,71 +18,67 @@ module SOBER_TOP
 
     //========== Controller ================
     input wire              CORE_RUN_I,
+    output wire             CORE_DONE_O,
 
-    //========== OUTPUT ====================
-
-    //========== Accmulator ====================
+    //========== VGA ====================
     output wire [7:0]       PIXEL_O,
-    output wire             EN_O,
-    //output wire [9:0]       cnt_buf_row,
-    //output wire [9:0]       cnt_buf_col,
-    //========== Controller ================
-    output wire              CORE_DONE_O
-
-    //========== VGA ==============
-
-    //========== 7-Segment ============== 
-    
-     //========== Switch ==============
-
+    output wire             PIXEL_EN_O
 );
 
-reg [7:0]       DATA_0_0_O;
-reg [7:0]       DATA_0_1_O;
-reg [7:0]       DATA_0_2_O;
-reg [7:0]       DATA_1_0_O;
-reg [7:0]       DATA_1_1_O;
-reg [7:0]       DATA_1_2_O;
-reg [7:0]       DATA_2_0_O;
-reg [7:0]       DATA_2_1_O;
-reg [7:0]       DATA_2_2_O;
+wire [7:0]       DATA_0_0;
+wire [7:0]       DATA_0_1;
+wire [7:0]       DATA_0_2;
+wire [7:0]       DATA_1_0;
+wire [7:0]       DATA_1_1;
+wire [7:0]       DATA_1_2;
+wire [7:0]       DATA_2_0;
+wire [7:0]       DATA_2_1;
+wire [7:0]       DATA_2_2;
 
+wire             core_en_w;
 
 preprocess_module U_pre 
 (
+    //======== SYSTEM ========================
     .clk                    (CLK),
     .rst_n                  (RST_N),
+    //======== Controller ===================
     .core_run_i             (CORE_RUN_I),
-    .data_i                 (DATA_I),
-    .data_en_i              (DATA_EN_I),  // input
     .core_done_o            (CORE_DONE_O), 
-    .core_en_o              (CORE_EN_O),
-    .data_0_0_o             (DATA_0_0_O),
-    .data_0_1_o             (DATA_0_1_O),
-    .data_0_2_o             (DATA_0_2_O),
-    .data_1_0_o             (DATA_1_0_O),
-    .data_1_1_o             (DATA_1_1_O),
-    .data_1_2_o             (DATA_1_2_O),
-    .data_2_0_o             (DATA_2_0_O),
-    .data_2_1_o             (DATA_2_1_O),
-    .data_2_2_o             (DATA_2_2_O) //output
+    //======== Memory_Controller ============
+    .data_i                 (DATA_I),
+    .data_en_i              (DATA_EN_I),
+    //======== CORE =========================
+    .data_0_0_o             (DATA_0_0),
+    .data_0_1_o             (DATA_0_1),
+    .data_0_2_o             (DATA_0_2),
+    .data_1_0_o             (DATA_1_0),
+    .data_1_1_o             (DATA_1_1),
+    .data_1_2_o             (DATA_1_2),
+    .data_2_0_o             (DATA_2_0),
+    .data_2_1_o             (DATA_2_1),
+    .data_2_2_o             (DATA_2_2),
+    .core_en_o              (core_en_w)
 );
 
-U_CORE core
+core_module U_CORE
 (
-    .clk                    (CLK),
-    .core_en_i              (CORE_EN_O),
-    .data_0_0_i             (DATA_0_0_O),
-    .data_0_1_i             (DATA_0_1_O),
-    .data_0_2_i             (DATA_0_2_O),
-    .data_1_0_i             (DATA_1_0_O),
-    .data_1_1_i             (DATA_1_1_O),
-    .data_1_2_i             (DATA_1_2_O),
-    .data_2_0_i             (DATA_2_0_O),
-    .data_2_1_i             (DATA_2_1_O),
-    .data_2_2_i             (DATA_2_2_O), // input
+    //======== SYSTEM ========================
+
+    //======== Preprocess ===================
+    .data_0_0_i             (DATA_0_0),
+    .data_0_1_i             (DATA_0_1),
+    .data_0_2_i             (DATA_0_2),
+    .data_1_0_i             (DATA_1_0),
+    .data_1_1_i             (DATA_1_1),
+    .data_1_2_i             (DATA_1_2),
+    .data_2_0_i             (DATA_2_0),
+    .data_2_1_i             (DATA_2_1),
+    .data_2_2_i             (DATA_2_2),
+    .core_en_i              (core_en_w),
+    //======== VGA ===================
     .pixle_o                (PIXEL_O), 
-    .en_o                   (EN_O)              // output
+    .en_o                   (PIXEL_EN_O)       
 );
 
 endmodule
