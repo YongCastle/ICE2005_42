@@ -39,7 +39,7 @@ wire [10:0]             sum;
 // |-1   0   1 |
 // +-----------+
 always @(posedge clk) begin
-    if(rst_n) begin
+    if(!rst_n) begin
         gx              <= 'd0;
         gy              <= 'd0;
         core_en_i_d     <= 'd0;

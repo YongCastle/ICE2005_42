@@ -127,7 +127,7 @@ end
 
 
 // ======== TO Controller ===========================
-assign core_done_o      = (cnt_pos_col == MAX_COL-2)? 1 : 0;
+assign core_done_o      = (cnt_pos_col == MAX_COL-3)? 1 : 0;
 
 // ======== TO CORE ===========================
 assign data_0_0_o       = (core_run_i)? buffer_0[cnt_pos_col+0] : 'd0;

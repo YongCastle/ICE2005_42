@@ -16,6 +16,7 @@ module controller_module
     //============ Memory Controller ==================
     // From
     input   wire           fetch_done_i,
+    input   wire [9:0]     cnt_img_row_i,
     // To
     output  wire           fetch_run_o,
     output  wire [19:0]    cnt_len_o,
@@ -83,7 +84,12 @@ always @(*) begin
             core_run            = 1'd1;
 
             if(core_done_i) begin
-                state_n             = S_DONE;
+                if(cnt_img_row_i == MAX_ROW - 3) begin
+                    state_n             = S_DONE;
+                end
+                else begin
+                    state_n             = S_FETCH;
+                end
             end
         end
         S_DONE : begin

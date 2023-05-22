@@ -93,6 +93,7 @@ controller_module U_CONTROLLER
     .start_i            (START_I),
     //============ Memory Controller ==================
     .fetch_done_i       (fetch_done_w),
+    .cnt_img_row_i      (cnt_img_row),
     .fetch_run_o        (fetch_run_w),
     .cnt_len_o          (cnt_len_w),
     //=============== Preprocessor ==================
@@ -101,28 +102,6 @@ controller_module U_CONTROLLER
     //==================== For Debugging ============================
     .state_o            (state),    
     .state_n_o          (state_n)
-);
-
-
-SOBEL_TOP   U_SOBEL_TOP
-(
-    //========== SYSTEM =====================
-    .CLK                (clk),
-    .RST_N              (rst_n),
-
-    //========== Memory Controller ==========
-    .DATA_I             (data_w),
-    .DATA_EN_I          (data_en_w),
-
-    //========== Controller ================
-    .CORE_RUN_I         (core_run_w),
-    .CORE_DONE_O        (core_done_w),
-
-    //========== Accmulator ====================
-    .PIXEL_O            (pixel_w),
-    .PIXEL_EN_O         (pixel_en_w)
-
-    //========== VGA ==============
 );
 
 
