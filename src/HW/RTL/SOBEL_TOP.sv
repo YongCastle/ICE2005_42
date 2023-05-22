@@ -50,8 +50,8 @@ preprocess_module U_pre
     .core_run_i             (CORE_RUN_I),
     .core_done_o            (CORE_DONE_O), 
     //======== Memory_Controller ============
-    .data_i                 (DATA_I),
-    .data_en_i              (DATA_EN_I),
+    .data_i                 (data_w),
+    .data_en_i              (data_en_w),
     //======== CORE =========================
     .data_0_0_o             (DATA_0_0),
     .data_0_1_o             (DATA_0_1),
@@ -85,5 +85,6 @@ core_module U_CORE
     .pixel_o                (PIXEL_O), 
     .pixel_en_o             (PIXEL_EN_O)       
 );
+
 
 endmodule
