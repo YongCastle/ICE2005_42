@@ -18,6 +18,7 @@ module controller_module
     input   wire           fetch_done_i,
     // To
     output  wire           fetch_run_o,
+    output  wire [19:0]    cnt_len_o,
 
     //=============== Preprocessor ==================
     // From
@@ -44,6 +45,8 @@ reg    fetch_run;
 reg    core_run;
 reg    done;
 
+reg [19:0] cnt_len;
+
 
 always @(posedge clk) begin
     if(!rst_n) begin
@@ -61,6 +64,7 @@ always @(*) begin
     fetch_run               = 'd0;
     core_run                = 'd0;
     done                    = 'd0;
+    cnt_len                 = 'd0;
 
     case(state)
         S_IDLE : begin
@@ -70,7 +74,7 @@ always @(*) begin
         end
         S_FETCH : begin
             fetch_run           = 1'd1;
-
+            cnt_len             = 'd1620;
             if(fetch_done_i) begin
                 state_n             = S_CORE;
             end
@@ -84,6 +88,7 @@ always @(*) begin
         end
         S_DONE : begin
             done                = 1'd1;
+
             if(start_i) begin
                 state_n             = S_IDLE;
             end
@@ -95,7 +100,7 @@ end
 
 // =============== Memory Controller ========
 assign fetch_run_o          = fetch_run;
-
+assign cnt_len_o            = cnt_len;
 // =============== Preprocess ========
 assign core_run_o           = core_run;
 

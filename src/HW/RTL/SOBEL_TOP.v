@@ -68,7 +68,8 @@ preprocess_module U_pre
 core_module U_CORE
 (
     //======== SYSTEM ========================
-
+    .clk                    (CLK),
+    .rst_n                  (RST_N),
     //======== Preprocess ===================
     .data_0_0_i             (DATA_0_0),
     .data_0_1_i             (DATA_0_1),

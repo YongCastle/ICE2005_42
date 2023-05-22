@@ -29,7 +29,7 @@ wire                fetch_run_w;
 wire                fetch_done_w;
 wire                core_done_w;
 wire                core_run_w;
-wire                buf_done_w;
+wire  [19:0]        cnt_len_w;
 
 // From SOBEL TOP
 wire  [7:0]         pixel_w;
@@ -77,6 +77,7 @@ memory_controller U_MEM_CTR
     //============== Controller ================
     .fetch_run_i        (fetch_run_w),
     .fetch_done_o       (fetch_done_w),
+    .cnt_len_i          (cnt_len_w),
 
     //============== DEUBG ================
     .cnt_img_row_o      (cnt_img_row),
@@ -93,8 +94,9 @@ controller_module U_CONTROLLER
     //============ Memory Controller ==================
     .fetch_done_i       (fetch_done_w),
     .fetch_run_o        (fetch_run_w),
+    .cnt_len_o          (cnt_len_w),
     //=============== Preprocessor ==================
-    .core_done_i        (core_run_w),
+    .core_done_i        (core_done_w),
     .core_run_o         (core_run_w),
     //==================== For Debugging ============================
     .state_o            (state),    
@@ -121,6 +123,64 @@ SOBEL_TOP   U_SOBEL_TOP
     .PIXEL_EN_O         (pixel_en_w)
 
     //========== VGA ==============
+);
+
+
+wire [7:0]       DATA_0_0;
+wire [7:0]       DATA_0_1;
+wire [7:0]       DATA_0_2;
+wire [7:0]       DATA_1_0;
+wire [7:0]       DATA_1_1;
+wire [7:0]       DATA_1_2;
+wire [7:0]       DATA_2_0;
+wire [7:0]       DATA_2_1;
+wire [7:0]       DATA_2_2;
+
+wire             core_en_w;
+
+preprocess_module U_pre
+(
+    //======== SYSTEM ========================
+    .clk                    (clk),
+    .rst_n                  (rst_n),
+    //======== Controller ===================
+    .core_run_i             (core_run_w),
+    .core_done_o            (core_done_w), 
+    //======== Memory_Controller ============
+    .data_i                 (data_w),
+    .data_en_i              (data_en_w),
+    //======== CORE =========================
+    .data_0_0_o             (DATA_0_0),
+    .data_0_1_o             (DATA_0_1),
+    .data_0_2_o             (DATA_0_2),
+    .data_1_0_o             (DATA_1_0),
+    .data_1_1_o             (DATA_1_1),
+    .data_1_2_o             (DATA_1_2),
+    .data_2_0_o             (DATA_2_0),
+    .data_2_1_o             (DATA_2_1),
+    .data_2_2_o             (DATA_2_2),
+    .core_en_o              (core_en_w)
+);
+
+core_module U_CORE
+(
+    //======== SYSTEM ========================
+    .clk                    (clk),
+    .rst_n                  (rst_n),
+    //======== Preprocess ===================
+    .data_0_0_i             (DATA_0_0),
+    .data_0_1_i             (DATA_0_1),
+    .data_0_2_i             (DATA_0_2),
+    .data_1_0_i             (DATA_1_0),
+    .data_1_1_i             (DATA_1_1),
+    .data_1_2_i             (DATA_1_2),
+    .data_2_0_i             (DATA_2_0),
+    .data_2_1_i             (DATA_2_1),
+    .data_2_2_i             (DATA_2_2),
+    .core_en_i              (core_en_w),
+    //======== VGA ===================
+    .pixel_o                (pixel_w), 
+    .pixel_en_o             (pixel_en_w)       
 );
 
 
