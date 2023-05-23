@@ -11,6 +11,7 @@ module controller_module
     //======================= Switch ================
     // From
     input   wire           start_i,
+    input   wire          
     // To
 
     //============ Memory Controller ==================

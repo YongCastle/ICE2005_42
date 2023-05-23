@@ -28,11 +28,6 @@ parameter        MAX_ROW = 540;
 parameter        MAX_COL = 540;
 
 
-//=========== SET WIRE, REG ======================
-reg                 rst_n;
-reg                 clk;
-
-
 // From BRAM
 wire                ena_w;
 wire                wea_w;

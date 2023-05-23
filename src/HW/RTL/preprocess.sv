@@ -36,15 +36,7 @@ module preprocess_module
     output  wire [7:0]      data_2_1_o,
     output  wire [7:0]      data_2_2_o,
 
-    output  wire            core_en_o,
-
-    //======================================================
-    //              DEBUGG
-    //======================================================
-    output    [1:0]                 cnt_buf_row_o,   
-    output    [9:0]                 cnt_buf_col_o,
-
-    output    [9:0]                 cnt_pos_col_o
+    output  wire            core_en_o
 );
 
 //8x(3x(540))       
