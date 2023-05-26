@@ -15,7 +15,7 @@
 
 module TOP_SOC
 (
-    input wire              host_CLK,
+    input wire              clk,
     input wire              rst_n,
     //-----------SWITCH-----------------------
     input wire              MODE1_START_I,  //SW1
@@ -40,24 +40,6 @@ module TOP_SOC
     output wire             buzzer_out_o
 );
 
-reg [31:0] tmp;
-reg clk;
-always@(posedge host_CLK) begin
-    if (!rst_n) begin
-        tmp         <= 0;
-        clk         <= 0;
-        end
-        else begin
-        if ( tmp == 'd20000) begin
-            tmp     <= 0;
-            clk     <= ~clk;
-        end
-        else begin
-            tmp     <= tmp + 1;
-            clk     <= clk;
-        end
-    end
-end
 
 
 //=========== SET PARAMETER ======================
@@ -100,7 +82,7 @@ wire [2:0] state, state_n;
 wire [9:0] cnt_img_row, cnt_img_col;
 // ==========================================
 
-blk_mem_gen_0 U_BRAM 
+blk_mem_gen_0 U_BRAM0
 (
     .clka               (clk),
     .rsta               (!rst_n),
