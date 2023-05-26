@@ -28,6 +28,7 @@ module TOP_SOC
     output wire             LED1_ON_o,
     output wire             LED2_ON_o,
 
+    //--------------VGA INPUT-----------------
     output wire [7:0]       PIXEL_O,
     output wire             PIXEL_EN_O,
 
@@ -47,7 +48,7 @@ always@(posedge host_CLK) begin
         clk         <= 0;
         end
         else begin
-        if ( tmp == 'd200000000) begin
+        if ( tmp == 'd20000) begin
             tmp     <= 0;
             clk     <= ~clk;
         end
