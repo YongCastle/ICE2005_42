@@ -40,9 +40,9 @@ module preprocess_module
 );
 
 //8x(3x(540))       
-reg [7:0]     buffer_0[0:MAX_COL-1];     
-reg [7:0]     buffer_1[0:MAX_COL-1];   
-reg [7:0]     buffer_2[0:MAX_COL-1];   
+reg  [MAX_COL-1:0][7:0]         buffer_0;     
+reg  [MAX_COL-1:0][7:0]         buffer_1;  
+reg  [MAX_COL-1:0][7:0]         buffer_2;  
 
 //MEM controller --> BUFFER
 reg [1:0]                    cnt_buf_row;            //Count row
@@ -80,9 +80,9 @@ end
 //Filter POS
 always @(posedge clk) begin
     if(!rst_n) begin
-        buffer_0[MAX_COL]                      <= 'd0;
-        buffer_1[MAX_COL]                      <= 'd0;
-        buffer_2[MAX_COL]                      <= 'd0;
+        buffer_0                      <= 'd0;
+        buffer_1                      <= 'd0;
+        buffer_2                      <= 'd0;
     end
     else begin
         case(cnt_buf_row)
@@ -122,15 +122,15 @@ end
 assign core_done_o      = (cnt_pos_col == MAX_COL-3)? 1 : 0;
 
 // ======== TO CORE ===========================
-assign data_0_0_o       = (core_run_i)? buffer_0[cnt_pos_col+0] : 'd0;
+assign data_0_0_o       = (core_run_i)? buffer_0[cnt_pos_col] : 'd0;
 assign data_0_1_o       = (core_run_i)? buffer_0[cnt_pos_col+1] : 'd0;
 assign data_0_2_o       = (core_run_i)? buffer_0[cnt_pos_col+2] : 'd0;
 
-assign data_1_0_o       = (core_run_i)? buffer_1[cnt_pos_col+0] : 'd0;
+assign data_1_0_o       = (core_run_i)? buffer_1[cnt_pos_col] : 'd0;
 assign data_1_1_o       = (core_run_i)? buffer_1[cnt_pos_col+1] : 'd0;
 assign data_1_2_o       = (core_run_i)? buffer_1[cnt_pos_col+2] : 'd0;
 
-assign data_2_0_o       = (core_run_i)? buffer_2[cnt_pos_col+0] : 'd0;
+assign data_2_0_o       = (core_run_i)? buffer_2[cnt_pos_col] : 'd0;
 assign data_2_1_o       = (core_run_i)? buffer_2[cnt_pos_col+1] : 'd0;
 assign data_2_2_o       = (core_run_i)? buffer_2[cnt_pos_col+2] : 'd0;
 

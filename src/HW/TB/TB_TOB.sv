@@ -11,6 +11,8 @@ parameter        MAX_COL = 540;
 reg                 rst_n;
 reg                 clk;
 
+reg                 MODE1_START_I;
+reg                 MODE2_START_I;
 reg                 START_I;
 
 // From BRAM
@@ -31,15 +33,22 @@ wire                core_done_w;
 wire                core_run_w;
 wire  [19:0]        cnt_len_w;
 
+wire                mode1_done_w;
+wire                is_mode1_w;
+wire                mode1_run_w;
+wire                is_mode2_w;
 // From SOBEL TOP
-wire  [7:0]         pixel_w;
-wire                pixel_en_w;
+wire  [7:0]         md1_pixel_w;
+wire  [7:0]         md2_pixel_w;
+wire                md1_pixel_en_w;
+wire                md2_pixel_en_w;
 
 
+reg  [7:0]         pixel_w;
 
 
 //============== FOR DEBUGGING =============
-wire [2:0] state, state_n;
+wire [2:0] state;
 wire [9:0] cnt_img_row, cnt_img_col;
 // ==========================================
 
@@ -75,13 +84,21 @@ memory_controller U_MEM_CTR
     .data_en_o          (data_en_w),
 
     //============== Controller ================
+    .is_mode1_i         (is_mode1_w),
+    .is_mode2_i         (is_mode2_w),
+    .mode1_run_i        (mode1_run_w),
+    .mode1_done_o       (mode1_done_w),
     .fetch_run_i        (fetch_run_w),
     .fetch_done_o       (fetch_done_w),
     .cnt_len_i          (cnt_len_w),
 
     //============== DEUBG ================
     .cnt_img_row_o      (cnt_img_row),
-    .cnt_img_col_o      (cnt_img_col)
+    .cnt_img_col_o      (cnt_img_col),
+
+    // ============== VGA ====================
+    .pixel_o            (md1_pixel_w),
+    .pixel_en_o         (md1_pixel_en_w)
 );
 
 controller_module U_CONTROLLER
@@ -90,18 +107,23 @@ controller_module U_CONTROLLER
     .clk                (clk),
     .rst_n              (rst_n),
     //======================= Switch ================
+    .mode1_start_i      (MODE1_START_I),
+    .mode2_start_i      (MODE2_START_I),
     .start_i            (START_I),
     //============ Memory Controller ==================
     .fetch_done_i       (fetch_done_w),
     .cnt_img_row_i      (cnt_img_row),
+    .mode1_done_i       (mode1_done_w),
+    .is_mode1_o         (is_mode1_w),
+    .mode1_run_o        (mode1_run_w),
+    .is_mode2_o         (is_mode2_w),
     .fetch_run_o        (fetch_run_w),
     .cnt_len_o          (cnt_len_w),
     //=============== Preprocessor ==================
     .core_done_i        (core_done_w),
     .core_run_o         (core_run_w),
     //==================== For Debugging ============================
-    .state_o            (state),    
-    .state_n_o          (state_n)
+    .state_o            (state)
 );
 
 
@@ -158,9 +180,19 @@ core_module U_CORE
     .data_2_2_i             (DATA_2_2),
     .core_en_i              (core_en_w),
     //======== VGA ===================
-    .pixel_o                (pixel_w), 
-    .pixel_en_o             (pixel_en_w)       
+    .pixel_o                (md2_pixel_w), 
+    .pixel_en_o             (md2_pixel_en_w)       
 );
+
+always @(*) begin
+    pixel_w     =   'd0;
+    case({md1_pixel_en_w,md2_pixel_en_w})
+        10: pixel_w     = md1_pixel_w;
+        01: pixel_w     = md2_pixel_w;
+        default: pixel_w = 'd0;
+    endcase
+end
+
 
 
 //clock
@@ -173,19 +205,37 @@ begin
 end
 
 initial begin
-    clk         = 1'd0;
-    START_I = 1'd0;
-    rst_n       = 1'd0;
+    clk                 = 1'd0;
+    MODE1_START_I       = 1'd0;
+    MODE2_START_I       = 1'd0;
+    rst_n               = 1'd0;
 end
 
 initial begin
     //RESET TSET
     #5;
-    #40 START_I = 1'd1; 
+    #20 MODE1_START_I = 1'd1; 
     rst_n = 1'd0;
 
+    #20 MODE2_START_I = 1'd1;
+    #20 MODE1_START_I = 1'd0;
+    MODE2_START_I = 1'd0; 
+
     // TEST START
-    #60 rst_n = 'd1;
+    // MODE 1 START --> VGA ON
+    #20 rst_n = 'd1;
+    #20 MODE1_START_I = 1'd1; MODE2_START_I = 1'd0; 
+    #20 START_I = 'd1;
+    #20 START_I = 'd0;
+
+
+    // MODE 2 START --> SOBEL -->  VGA ON
+    #6000000 rst_n       = 'd0;
+    #20 rst_n               = 'd1;
+    #20 MODE1_START_I       = 1'd0; MODE2_START_I           = 1'd1; 
+    #20 START_I             = 'd1;
+    #20 START_I             = 'd0;
+
 end
 
 
