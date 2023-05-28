@@ -48,7 +48,6 @@ end
 assign addra_o      = addr;
 assign ena_o        = pixel_en_i;
 assign wea_o        = 1'd1;
-assign d2mema_o     = pixel_i;
-
+assign d2mema_o     = (pixel_en_i)? pixel_i : 'd0;
 
 endmodule

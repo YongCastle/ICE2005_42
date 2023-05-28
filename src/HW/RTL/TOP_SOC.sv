@@ -163,25 +163,66 @@ reg led2_on;
 
 assign led1_on        = MODE1_START_I;
 assign led2_on        = MODE2_START_I;
-assign LED1_ON_o      = led1_on;
-assign LED2_ON_o      = led2_on;
+assign LED1_ON_o      = (!rst_n)? 'd0: led1_on;
+assign LED2_ON_o      = (!rst_n)? 'd0: led2_on;
 
-SOBEL_TOP U_SOBEL_TOP
+
+wire [7:0]       DATA_0_0;
+wire [7:0]       DATA_0_1;
+wire [7:0]       DATA_0_2;
+wire [7:0]       DATA_1_0;
+wire [7:0]       DATA_1_1;
+wire [7:0]       DATA_1_2;
+wire [7:0]       DATA_2_0;
+wire [7:0]       DATA_2_1;
+wire [7:0]       DATA_2_2;
+
+wire             core_en_w;
+
+preprocess_module U_pre
 (
-    //========== SYSTEM =====================
-    .CLK            (clk),
-    .RST_N          (rst_n),
-    //========== Memory Controller ==========
-    .DATA_I         (data_w),
-    .DATA_EN_I      (data_en_w),
-    //========== Controller ================
-    .CORE_RUN_I     (core_run_w),
-    .CORE_DONE_O    (core_done_w),
-    //========== VGA ====================
-    .PIXEL_O        (md2_pixel_w), 
-    .PIXEL_EN_O     (md2_pixel_en_w)      
+    //======== SYSTEM ========================
+    .clk                    (clk),
+    .rst_n                  (rst_n),
+    //======== Controller ===================
+    .core_run_i             (core_run_w),
+    .core_done_o            (core_done_w), 
+    //======== Memory_Controller ============
+    .data_i                 (data_w),
+    .data_en_i              (data_en_w),
+    //======== CORE =========================
+    .data_0_0_o             (DATA_0_0),
+    .data_0_1_o             (DATA_0_1),
+    .data_0_2_o             (DATA_0_2),
+    .data_1_0_o             (DATA_1_0),
+    .data_1_1_o             (DATA_1_1),
+    .data_1_2_o             (DATA_1_2),
+    .data_2_0_o             (DATA_2_0),
+    .data_2_1_o             (DATA_2_1),
+    .data_2_2_o             (DATA_2_2),
+    .core_en_o              (core_en_w)
 );
 
+core_module U_CORE
+(
+    //======== SYSTEM ========================
+    .clk                    (clk),
+    .rst_n                  (rst_n),
+    //======== Preprocess ===================
+    .data_0_0_i             (DATA_0_0),
+    .data_0_1_i             (DATA_0_1),
+    .data_0_2_i             (DATA_0_2),
+    .data_1_0_i             (DATA_1_0),
+    .data_1_1_i             (DATA_1_1),
+    .data_1_2_i             (DATA_1_2),
+    .data_2_0_i             (DATA_2_0),
+    .data_2_1_i             (DATA_2_1),
+    .data_2_2_i             (DATA_2_2),
+    .core_en_i              (core_en_w),
+    //======== VGA ===================
+    .pixel_o                (md2_pixel_w), 
+    .pixel_en_o             (md2_pixel_en_w)       
+);
 
 
 segment U_SEGMENT

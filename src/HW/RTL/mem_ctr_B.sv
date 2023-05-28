@@ -18,8 +18,9 @@ module mem_ctr_B
 
     // ------------ VGA ---------------------------------
     input wire              bram_en_i,
-    output wire [7:0]       pixel_o,
-    output wire [7:0]       pixel_en_o
+
+    output wire [7:0]       RGB_o,
+    output wire             RGB_en_o
 );
 
 reg [18:0] addr;
@@ -58,10 +59,10 @@ end
 assign enb_o            = bram_en_i;
 assign web_o            = 1'd0;         //REAMD
 assign addrb_o          = addr;
-     
+assign d2memb_o         = 'd0;
 
-assign pixel_o          = (pixel_en_o)? mem2db_i : 'd0;
-assign pixel_en_o       = bram_en_2d;
+assign RGB_o            = (RGB_en_o)? mem2db_i : 'd0;
+assign RGB_en_o         = bram_en_2d;
     
 
 endmodule

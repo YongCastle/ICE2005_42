@@ -14,7 +14,10 @@ reg                 clk;
 reg                 MODE1_START_I;
 reg                 MODE2_START_I;
 reg                 START_I;
+reg                 BUZZER_MODE_I;
+reg                 bram_en_w;
 
+// =======================================================
 // From BRAM
 wire                ena_w;
 wire                wea_w;
@@ -43,8 +46,7 @@ wire  [7:0]         md2_pixel_w;
 wire                md1_pixel_en_w;
 wire                md2_pixel_en_w;
 
-
-reg  [7:0]         pixel_w;
+wire  [9:0]         cnt_img_row_w;
 
 
 //============== FOR DEBUGGING =============
@@ -63,7 +65,6 @@ blk_mem_gen_0 U_BRAM
     .douta              (mem2d_w),
     .rsta_busy          () 
 );
-
 
 memory_controller U_MEM_CTR
 (
@@ -101,6 +102,7 @@ memory_controller U_MEM_CTR
     .pixel_en_o         (md1_pixel_en_w)
 );
 
+
 controller_module U_CONTROLLER
 (
     //============== SYSTEM ====================
@@ -122,9 +124,20 @@ controller_module U_CONTROLLER
     //=============== Preprocessor ==================
     .core_done_i        (core_done_w),
     .core_run_o         (core_run_w),
+    //================ 7-Segment ==========================
+    .cnt_img_row_o      (cnt_img_row_w),
     //==================== For Debugging ============================
     .state_o            (state)
 );
+
+reg led1_on;
+reg led2_on;
+reg LED1_ON_o;
+reg LED2_ON_o;
+assign led1_on        = MODE1_START_I;
+assign led2_on        = MODE2_START_I;
+assign LED1_ON_o      = led1_on;
+assign LED2_ON_o      = led2_on;
 
 
 wire [7:0]       DATA_0_0;
@@ -184,14 +197,113 @@ core_module U_CORE
     .pixel_en_o             (md2_pixel_en_w)       
 );
 
+
+reg  [7:0]         PIXEL_W;
+reg                PIXEL_EN_W;
 always @(*) begin
-    pixel_w     =   'd0;
-    case({md1_pixel_en_w,md2_pixel_en_w})
-        10: pixel_w     = md1_pixel_w;
-        01: pixel_w     = md2_pixel_w;
-        default: pixel_w = 'd0;
+    PIXEL_W         = 'd0;
+    PIXEL_EN_W      = 'd0;
+    case({md1_pixel_en_w, md2_pixel_en_w})
+        //mode1 START
+        'b10: begin
+            PIXEL_W     = md1_pixel_w;
+            PIXEL_EN_W  = md1_pixel_en_w;
+        end
+        //mode1 START
+        'b01: begin
+            PIXEL_W     = md2_pixel_w;
+            PIXEL_EN_W  = md2_pixel_en_w;
+        end
+        default: begin
+            PIXEL_W     = 'd0;
+            PIXEL_EN_W  = 'd0;
+        end
     endcase
 end
+
+wire                dena_w;
+wire                dwea_w;
+wire [18:0]         daddra_w;
+wire [7:0]          dd2mema_w;
+wire [7:0]          dmem2da_w;
+
+mem_ctr_A   U_DPBRAM_CTR_A
+(
+    .clk                    (clk),
+    .rst_n                  (rst_n),
+
+    //============== BRAM ====================
+    .ena_o                  (dena_w),
+    .wea_o                  (dwea_w),               // 1 : Write    , 0 : READ
+    .addra_o                (daddra_w),
+    .d2mema_o               (dd2mema_w),           
+
+    .mem2da_i               (dmem2da_w),           // Not Using. Do Not READ
+
+    //============== PIXEL INPUT ====================
+    .pixel_i                (PIXEL_W),
+    .pixel_en_i             (PIXEL_EN_W)
+);
+
+wire                denb_w;
+wire                dweb_w;
+wire [18:0]         daddrb_w;
+wire [7:0]          dd2memb_w;
+wire [7:0]          dmem2db_w;
+
+reg                 tft_iclk;
+
+blk_mem_gen_1 U_BRAM1
+(
+    //------------ PORT A-------------------
+    .clka               (clk),
+    .rsta               (!rst_n),
+    .ena                (dena_w),
+    .wea                (dwea_w),
+    .addra              (daddra_w),
+    .dina               (dd2mema_w),
+    .douta              (dmem2da_w),
+    .rsta_busy          (), 
+    //------------ PORT B-------------------
+    .clkb               (tft_iclk),
+    .rstb               (!rst_n),
+    .enb                (denb_w),
+    .web                (dweb_w),
+    .addrb              (daddrb_w),
+    .dinb               (dd2memb_w),
+    .doutb              (dmem2db_w),
+    .rstb_busy          () 
+);
+
+
+reg [7:0]                RGB_W;
+reg                      RGB_EN_W;
+
+mem_ctr_B U_DPBRAM_CTR_B
+(
+    .clk                (tft_iclk),
+    .rst_n              (rst_n),
+    .enb_o              (denb_w),
+    .web_o              (dweb_w),
+    .addrb_o            (daddrb_w),
+    .d2memb_o           (dd2memb_w),
+    .mem2db_i           (dmem2db_w),
+    .bram_en_i          (bram_en_w),
+    
+    .RGB_o              (RGB_W),
+    .RGB_en_o           (RGB_EN_W)
+);
+
+
+
+
+
+buzzer_module U_BUZZER (
+    .clk            (clk),
+    .rst_n          (rst_n),
+    .play_tone_i    (BUZZER_MODE_I),
+    .buzzer_out_o   (buzzer_out_o)
+);
 
 
 
@@ -201,6 +313,7 @@ begin
     forever
     begin
         #10 clk = !clk;
+        #5 tft_iclk = !tft_iclk;
     end
 end
 
@@ -208,7 +321,11 @@ initial begin
     clk                 = 1'd0;
     MODE1_START_I       = 1'd0;
     MODE2_START_I       = 1'd0;
+    START_I             = 1'd0;
+    BUZZER_MODE_I       = 1'd0;
     rst_n               = 1'd0;
+    tft_iclk            = 1'd0;
+    bram_en_w           = 1'd0;
 end
 
 initial begin
@@ -222,19 +339,33 @@ initial begin
     MODE2_START_I = 1'd0; 
 
     // TEST START
-    // MODE 1 START --> VGA ON
+    // MODE 1 START 
     #20 rst_n = 'd1;
     #20 MODE1_START_I = 1'd1; MODE2_START_I = 1'd0; 
     #20 START_I = 'd1;
     #20 START_I = 'd0;
 
 
+    #100 rst_n = 'd1;
+    #20 MODE1_START_I = 1'd1; MODE2_START_I = 1'd0; 
+    #20 START_I = 'd1;
+    #40 START_I = 'd0;
+    #3000000;
+    //RESET TEST
+    #100 rst_n = 'd0;
+    #100 rst_n = 'd1;
+    #20 START_I = 'd1;
+    #40 START_I = 'd0;
     // MODE 2 START --> SOBEL -->  VGA ON
-    #6000000 rst_n       = 'd0;
-    #20 rst_n               = 'd1;
-    #20 MODE1_START_I       = 1'd0; MODE2_START_I           = 1'd1; 
-    #20 START_I             = 'd1;
-    #20 START_I             = 'd0;
+    #6000000 rst_n       = 'd1;
+    #20 bram_en_w           = 'd1;
+    #1000 bram_en_w           = 'd0;
+
+    #40 bram_en_w           = 'd1;
+    // #20 rst_n               = 'd1;
+    // #20 MODE1_START_I       = 1'd0; MODE2_START_I           = 1'd1; 
+    // #20 START_I             = 'd1;
+    // #20 START_I             = 'd0;
 
 end
 

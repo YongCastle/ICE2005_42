@@ -55,27 +55,6 @@ wire [7:0]      DATA_W;
 wire            DATA_EN_W;
 wire            bran_en_w;
 
-// reg [31:0] tmp;
-// reg clk;
-
-// always@(posedge host_CLK) begin
-//     if (!rst_n) begin
-//         tmp         <= 0;
-//         clk         <= 0;
-//         end
-//         else begin
-//         if ( tmp == 'd20000) begin
-//             tmp     <= 0;
-//             clk     <= ~clk;
-//         end
-//         else begin
-//             tmp     <= tmp + 1;
-//             clk     <= clk;
-//         end
-//     end
-// end
-
-
 
 TOP_SOC U_TOP_SOC
 (
@@ -136,50 +115,14 @@ blk_mem_gen_1 U_BRAM1
     .douta              (mem2da_w),
     .rsta_busy          () 
     //------------ PORT B-------------------
-    .clkb               (clk),
-    .rstb               (!rst_n),
-    .enb                (enb_w),
-    .web                (web_w),
-    .addrb              (addrb_w),
-    .dinb               (d2memb_w),
-    .doutb              (mem2db_w),
+    .clkb               (),
+    .rstb               (),
+    .enb                (),
+    .web                (),
+    .addrb              (),
+    .dinb               (),
+    .doutb              (),
     .rstb_busy          () 
-);
-
-mem_ctr_B   U_DPBRAM_CTR_B
-(
-    .clk                    (clk),
-    .rst_n                  (rst_n),
-
-    //============== BRAM ====================
-    .enb_o                  (enb_w),
-    .web_o                  (web_w),               // 1 : Write    , 0 : READ
-    .addrb_o                (addrb_w),
-    .d2memb_o               (d2memb_w),           
-
-    .mem2db_i               (mem2db_w),           // Not Using. Do Not READ
-
-    //============== PIXEL INPUT ====================
-    .bram_en_i              (bran_en_w),
-    .pixel_o                (DATA_W),
-    .pixel_en_o             (DATA_EN_W)
-);
-
-
-
-vga U_VGA(
-   .clk                     (clk),
-   .rstb                    (rst_n),
-
-   //============ MEMCTR ===============
-   .bram_en_o               (bran_en_w),
-   .pixel_i                 (DATA_W),
-   //=============OUTPUT==================
-   .vga_vs                  (vga_vs_o),
-   .vga_hs                  (vga_hs_o),
-   .vga_r                   (vga_r_o),
-   .vga_g                   (vga_g_o),
-   .vga_b                   (vga_b_o)
 );
 
 endmodule
