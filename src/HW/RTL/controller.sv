@@ -14,7 +14,8 @@ module controller_module
     input   wire           mode2_start_i,       // 레버 
     input   wire           start_i,             // SW
     // To
-
+    //======================= LED ===================
+    output  wire           led_idle_o,
     //============ Memory Controller ==================
     // From
     input   wire           fetch_done_i,        //mode12_Done
@@ -59,6 +60,7 @@ reg    fetch_run;
 reg    core_run;
 reg    done;
 
+reg    led_idle;
 reg [19:0] cnt_len;
 
 
@@ -82,9 +84,11 @@ always @(*) begin
     core_run                = 'd0;
     done                    = 'd0;
     cnt_len                 = 'd0;
+    led_idle                = 'd0;
 
     case(state)
         S_IDLE : begin
+            led_idle            = 1'd1;
             if(mode1_start_i & !mode2_start_i) begin
                 state_n             = S_MODE1;
             end
@@ -162,5 +166,8 @@ assign cnt_img_row_o        = cnt_img_row_i;
 // ===========DEBUG ========
 assign state_o        = state;
 assign state_n_o      = state_n;
+
+// =========== LED ===================
+assign led_idle_o     = led_idle;
 
 endmodule
