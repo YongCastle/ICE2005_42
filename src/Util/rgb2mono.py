@@ -4,7 +4,7 @@ from PIL import Image
 image = Image.open("./test_RGB_img.png")
 
 # Resize the image to 540 x 540 pixels
-resized_image = image.resize((540, 540))
+resized_image = image.resize((540, 360))
 
 # Convert the image to black and white
 bw_image = resized_image.convert("L")

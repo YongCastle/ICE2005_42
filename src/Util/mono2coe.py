@@ -5,8 +5,8 @@ image = Image.open("sobel_output.png")
 #image = Image.open("test_MONO_img_540x540.png")
 
 # Resize the image to 540x540 pixels if necessary
-if image.size != (540, 540):
-    image = image.resize((540, 540))
+if image.size != (540, 360):
+    image = image.resize((540, 360))
 
 # Convert the image to grayscale
 image = image.convert("L")
@@ -34,5 +34,5 @@ coe_content += ",\n".join(hex_values)
 coe_content += ";"
 
 # Save the COE file
-with open("test_MONO_img_540x540.coe", "w") as f:
+with open("test_MONO_img_540x360.coe", "w") as f:
     f.write(coe_content)
