@@ -1,7 +1,7 @@
 from PIL import Image
 
 # Open the image
-image = Image.open("sobel_output.png")
+image = Image.open("test_MONO_img_540x360.png")
 #image = Image.open("test_MONO_img_540x540.png")
 
 # Resize the image to 540x540 pixels if necessary

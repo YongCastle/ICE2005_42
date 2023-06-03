@@ -33,20 +33,20 @@ set_property -dict {PACKAGE_PIN  P20 IOSTANDARD LVCMOS33} [get_ports {buzzer_out
 
 #---------------------------------------- VGA ------------------
 
-set_property -dict {PACKAGE_PIN D17  IOSTANDARD LVCMOS33} [get_ports {vga_hs_o}]
-set_property -dict {PACKAGE_PIN C17  IOSTANDARD LVCMOS33} [get_ports {vga_vs_o}]
+set_property -dict {PACKAGE_PIN K22  IOSTANDARD LVCMOS33} [get_ports {vga_hs_o}]
+set_property -dict {PACKAGE_PIN K21  IOSTANDARD LVCMOS33} [get_ports {vga_vs_o}]
 
-set_property -dict {PACKAGE_PIN D19 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[3]}]
-set_property -dict {PACKAGE_PIN E19 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[2]}]
-set_property -dict {PACKAGE_PIN C19 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[1]}]
-set_property -dict {PACKAGE_PIN C18 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[0]}]
+set_property -dict {PACKAGE_PIN G18 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[3]}]
+set_property -dict {PACKAGE_PIN H18 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[2]}]
+set_property -dict {PACKAGE_PIN G17 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[1]}]
+set_property -dict {PACKAGE_PIN H17 IOSTANDARD LVCMOS33} [get_ports {vga_r_o[0]}]
 
-set_property -dict {PACKAGE_PIN A20 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[3]}]
-set_property -dict {PACKAGE_PIN B20 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[2]}]
-set_property -dict {PACKAGE_PIN E18 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[1]}]
-set_property -dict {PACKAGE_PIN F18 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[0]}]
+set_property -dict {PACKAGE_PIN G20 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[3]}]
+set_property -dict {PACKAGE_PIN H20 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[2]}]
+set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[1]}]
+set_property -dict {PACKAGE_PIN J19 IOSTANDARD LVCMOS33} [get_ports {vga_g_o[0]}]
 
-set_property -dict {PACKAGE_PIN F20 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[3]}]
-set_property -dict {PACKAGE_PIN F19 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[2]}]
-set_property -dict {PACKAGE_PIN A19 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[1]}]
-set_property -dict {PACKAGE_PIN A18 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[0]}]
+set_property -dict {PACKAGE_PIN J22 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[3]}]
+set_property -dict {PACKAGE_PIN H22 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[2]}]
+set_property -dict {PACKAGE_PIN J21 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[1]}]
+set_property -dict {PACKAGE_PIN J20 IOSTANDARD LVCMOS33} [get_ports {vga_b_o[0]}]

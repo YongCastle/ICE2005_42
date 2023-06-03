@@ -10,4 +10,4 @@ resized_image = image.resize((540, 360))
 bw_image = resized_image.convert("L")
 
 # Save the resulting image as a new file
-bw_image.save("test_MONO_img_540x540.png")
+bw_image.save("test_MONO_img_540x360.png")

@@ -1,7 +1,8 @@
 import cv2
 
 # Load the image
-image = cv2.imread("test_MONO_img_540x540.png", cv2.IMREAD_GRAYSCALE)
+#image = cv2.imread("test_MONO_img_540x540.png", cv2.IMREAD_GRAYSCALE)
+image = cv2.imread("test_MONO_img_540x360.png", cv2.IMREAD_GRAYSCALE)
 
 # Apply the Sobel operator
 sobelx = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)
