@@ -15,7 +15,7 @@
 
 module TOP_SOC
 (
-    input wire              host_clk,       //  100   MHz
+    input wire              host_CLK,       //  100   MHz
 
     input wire              rst_n,
     //-----------SWITCH-----------------------
@@ -44,22 +44,28 @@ module TOP_SOC
 
     //-------------BUZZER-------------------
     output wire             buzzer_out_o
+
+    //=========================================
+    //          DEBUG                  
+    //=========================================
+    #output wire [9:0]          
 );
 
 
 
 //=================== SET PARAMETER ==============================
-parameter        MAX_ROW = 540;
+parameter        MAX_ROW = 360;
 parameter        MAX_COL = 540;
 
 
-wire                 clk;            //    0.2 MHz
+wire                 clk_10;            //    0.2 MHz
+wire                 clk_100;
 wire                 tft_iclk;       //   65   Mhz
 
 //======================= BRAM OUTPUT ================================
 wire                ena_w;
 wire                wea_w;
-wire [18:0]         addra_w;
+wire [17:0]         addra_w;
 wire [7:0]          d2mem_w;
 wire [7:0]          mem2d_w;
 
@@ -85,6 +91,7 @@ wire                md1_pixel_en_w;
 wire                md2_pixel_en_w;
 
 wire  [9:0]         cnt_img_row_w;
+//assign cnt_img_row_o = cnt_img_row_w
 
 //==================== Preprocess ==================================
 wire [7:0]       DATA_0_0;
@@ -102,13 +109,13 @@ wire             core_en_w;
 // ========================== DPBRAM Wire =======================================
 wire                dena_w;
 wire                dwea_w;
-wire [18:0]         daddra_w;
+wire [17:0]         daddra_w;
 wire [7:0]          dd2mema_w;
 wire [7:0]          dmem2da_w;
 
 wire                denb_w;
 wire                dweb_w;
-wire [18:0]         daddrb_w;
+wire [17:0]         daddrb_w;
 wire [7:0]          dd2memb_w;
 wire [7:0]          dmem2db_w;
 
@@ -128,14 +135,32 @@ wire [3:0]      vga_b;
 clk_wiz_0 U_CLK
  (
  // Clock in ports
-  .clk_in1          (host_clk),
+  .clk_in1          (host_CLK),
   // Clock out ports
   .clk_65           (tft_iclk),
-  .clk_5            (clk)
+  .clk_5            (clk_10),
+  .clk_100          (clk_100)
  );
 
 
-
+reg [31:0] tmp;
+reg clk;
+always@(posedge clk_10 or negedge rst_n) begin
+    if (!rst_n) begin
+        tmp         <= 0;
+        clk         <= 0;
+    end
+    else begin
+        if ( tmp == 'd20) begin
+            tmp     <= 0;
+            clk     <= ~clk;
+        end
+        else begin
+            tmp     <= tmp + 1;
+            clk     <= clk;
+        end
+    end
+end
 
 
 
@@ -152,10 +177,11 @@ segment U_SEGMENT
 
 
 buzzer_module U_BUZZER (
-    .clk            (host_clk),
+    .clk            (clk_100),
     .rst_n          (rst_n),
     .buzzer_mode_i  (BUZZER_MODE_I),
-    .buzzer_out_o   (buzzer_out_o)
+    .buzzer_out_o   (buzzer_out_o),
+    .cnt_row_i      (cnt_img_row_w)
 );
 
 
@@ -378,7 +404,7 @@ mem_ctr_B U_DPBRAM_CTR_B
 );
 
 
-vga_prot    U_VGA_PORT
+vga_port    U_VGA_PORT
 (
     /*****************************************************
     ** Input Signal Define                              **

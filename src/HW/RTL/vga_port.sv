@@ -1,4 +1,4 @@
-module vga_prot
+module vga_port
 #(
 parameter Tvw       = 12'd6   ,   //VSYNC Pulse Width
 parameter Tvbp      = 12'd29  ,   //VSYNC Back Porch
@@ -9,10 +9,8 @@ parameter Thbp      = 12'd160 ,   //HSYNC Back Porch
 parameter Thfp      = 12'd24  ,   //Horizontal Front Porch     
 parameter Thdw      = 12'd1024,   //Horizontal valid data width
 parameter Vsync_pol = 1'b1    ,   //VSync Polarity, 0 = Active High, 1 = Active Low
-parameter Hsync_pol = 1'b1    ,   //HSync Polarity, 0 = Active High, 1 = Active Low
+parameter Hsync_pol = 1'b1       //HSync Polarity, 0 = Active High, 1 = Active Low
 
-parameter Pixel     = 10'd540 ,
-parameter Pixel_vol = 19'd291600
 )
 (
 /*****************************************************
@@ -66,7 +64,7 @@ assign pixel = rgb_i[7:4];
 /*****************************************************
 ** HSYNC Period/VSYNC Period Count
 *****************************************************/
-always @(posedge clk_65) begin 
+always @(posedge clk_65 or negedge rst_n) begin 
    if (!rst_n) begin
        hcnt   <= 12'd0;
        vcnt   <= 12'd0;
@@ -95,7 +93,7 @@ end
 /*****************************************************
 ** VSYNC Signal Gen.
 *****************************************************/
-always @(posedge clk_65) begin 
+always @(posedge clk_65 or negedge rst_n ) begin 
    if (!rst_n) begin
        pat_vs       <= VSYNC_ACT;
    end
@@ -115,7 +113,7 @@ end
 /*****************************************************
 ** HSYNC Signal Gen.
 *****************************************************/
-always @(posedge clk_65) begin 
+always @(posedge clk_65 or negedge rst_n ) begin 
    if (!rst_n) begin
        pat_hs <= HSYNC_ACT;
    end
@@ -133,7 +131,7 @@ end
 /*****************************************************
 ** HSYNC/VSYNC Data Enable Signal Gen.
 *****************************************************/
-always @(posedge clk_65) begin 
+always @(posedge clk_65 or negedge rst_n ) begin 
    if (!rst_n) begin
        pat_de   <= 1'b0;
    end
@@ -153,7 +151,7 @@ end
 /*****************************************************
 ** Horizontal Valid Pixel Count
 *****************************************************/
-always @(posedge clk_65) begin 
+always @(posedge clk_65 or negedge rst_n ) begin 
    if (!rst_n) begin
       pat_hcnt    <= 'd0;
    end
@@ -171,7 +169,7 @@ end
 /*****************************************************
 ** Vertical Valid Pixel Count
 *****************************************************/
-always @(posedge clk_65) begin 
+always @(posedge clk_65 or negedge rst_n ) begin 
    if (!rst_n) begin
       pat_vcnt <= 'd0;
    end
@@ -189,12 +187,12 @@ end
 
 
 
-always @(posedge clk_65) begin
+always @(posedge clk_65 or negedge rst_n ) begin
    if (!rst_n) begin
       bram_en <= 1'b0;
    end
    else begin
-      if ((hcnt >= 293) && (hcnt <= 832) && (vcnt >= 35) && (pat_vcnt <= 539)) begin
+      if ((hcnt >= 293) && (hcnt <= 832) && (vcnt >= 35) && (pat_vcnt <= 359)) begin
          bram_en <= 1'b1;
       end
 
@@ -204,14 +202,14 @@ always @(posedge clk_65) begin
    end
 end
 
-always @(posedge clk_65) begin
+always @(posedge clk_65 or negedge rst_n ) begin
    if (!rst_n) begin
       pat_r    <= 4'b0000;
       pat_g    <= 4'b0000;
       pat_b    <= 4'b0000;
    end
    else begin
-      if ((pat_de == 1'd1) && (hcnt <= 'd834) && (hcnt >= 'd293) && (pat_vcnt <= 'd539)) begin
+      if ((pat_de == 1'd1) && (hcnt <= 'd834) && (hcnt >= 'd293) && (pat_vcnt <= 'd359)) begin
          pat_r <= rgb_i;
          pat_g <= rgb_i;
          pat_b <= rgb_i;

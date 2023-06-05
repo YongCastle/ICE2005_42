@@ -17,7 +17,7 @@ reg [3:0] seg_memory_2;
 reg [3:0] seg_memory_3;
 
 
-always @(posedge clk) 
+always @(posedge clk or negedge rst_n) 
 begin 
    if (!rst_n) 
    begin
@@ -59,7 +59,7 @@ end
 
 
 
-always @(posedge clk) 
+always @(posedge clk or negedge rst_n) 
     begin 
     if (!rst_n) begin
         seg_data        <= 7'd0;

@@ -21,7 +21,7 @@ reg                 bram_en_w;
 // From BRAM
 wire                ena_w;
 wire                wea_w;
-wire [18:0]         addra_w;
+wire [17:0]         addra_w;
 wire [7:0]          d2mem_w;
 wire [7:0]          mem2d_w;
 
@@ -112,6 +112,7 @@ controller_module U_CONTROLLER
     .mode1_start_i      (MODE1_START_I),
     .mode2_start_i      (MODE2_START_I),
     .start_i            (START_I),
+    .led_idle_o         (LED_IDLE_O),
     //============ Memory Controller ==================
     .fetch_done_i       (fetch_done_w),
     .cnt_img_row_i      (cnt_img_row),
@@ -247,7 +248,7 @@ mem_ctr_A   U_DPBRAM_CTR_A
 
 wire                denb_w;
 wire                dweb_w;
-wire [18:0]         daddrb_w;
+wire [17:0]         daddrb_w;
 wire [7:0]          dd2memb_w;
 wire [7:0]          dmem2db_w;
 
@@ -295,15 +296,6 @@ mem_ctr_B U_DPBRAM_CTR_B
 );
 
 
-
-
-
-buzzer_module U_BUZZER (
-    .clk            (clk),
-    .rst_n          (rst_n),
-    .play_tone_i    (BUZZER_MODE_I),
-    .buzzer_out_o   (buzzer_out_o)
-);
 
 
 

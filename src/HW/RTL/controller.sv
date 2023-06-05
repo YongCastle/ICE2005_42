@@ -1,6 +1,6 @@
 module controller_module
 #(
-    parameter       MAX_ROW = 540,
+    parameter       MAX_ROW = 360,
     parameter       MAX_COL = 540
 )
 (
@@ -64,7 +64,7 @@ reg    led_idle;
 reg [19:0] cnt_len;
 
 
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         state               <= S_IDLE;
     end
@@ -88,13 +88,12 @@ always @(*) begin
 
     case(state)
         S_IDLE : begin
-            led_idle            = 1'd1;
             if(mode1_start_i & !mode2_start_i) begin
                 state_n             = S_MODE1;
             end
             else if(!mode1_start_i & mode2_start_i) begin
                 state_n             = S_MODE2;
-            end  
+            end
         end
         S_MODE1 : begin
             is_mode1            = 'd1;
@@ -108,7 +107,7 @@ always @(*) begin
         S_MODE1_RUN : begin
             is_mode1            = 'd1;
             mode1_run           = 1'd1;
-            cnt_len             = 'd291600;
+            cnt_len             = 'd194400;
             if(mode1_done_i) begin
                 state_n             = S_DONE;
             end
@@ -134,7 +133,7 @@ always @(*) begin
             is_mode2            = 'd1;
             core_run            = 1'd1;
             if(core_done_i) begin
-                if(cnt_img_row_i == MAX_ROW - 3) begin
+                if(cnt_img_row_i == MAX_ROW - 1) begin
                     state_n             = S_DONE;
                 end
                 else begin
@@ -144,7 +143,10 @@ always @(*) begin
         end
         S_DONE : begin
             done                = 1'd1;
-            state_n             = S_IDLE;
+            led_idle            = 1'd1;
+            if(start_i) begin
+                state_n             = S_IDLE;
+            end
         end
     endcase
 end

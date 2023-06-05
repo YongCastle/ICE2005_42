@@ -1,6 +1,6 @@
 module mem_ctr_B
 #(
-    parameter        MAX_ROW = 540,
+    parameter        MAX_ROW = 360,
     parameter        MAX_COL = 540 
 )
 (
@@ -11,7 +11,7 @@ module mem_ctr_B
     //------------ BRAM ----------------------------
     output wire             enb_o,
     output wire             web_o,
-    output wire [18:0]      addrb_o,
+    output wire [17:0]      addrb_o,
     output wire [7:0]       d2memb_o,             // Not Using. We Do Not Write
 
     input wire  [7:0]       mem2db_i,
@@ -23,10 +23,10 @@ module mem_ctr_B
     output wire             RGB_en_o
 );
 
-reg [18:0] addr;
+reg [17:0] addr;
 
 // Address
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         addr     <= 'd0;
     end
@@ -45,7 +45,7 @@ end
 reg  bram_en_d; 
 reg  bram_en_2d;
 
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         bram_en_d   <= 'd0; 
         bram_en_2d  <= 'd0;

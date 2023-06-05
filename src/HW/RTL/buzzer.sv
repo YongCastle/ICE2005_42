@@ -1,31 +1,31 @@
-`timescale 1ns / 1ps
-
-
 module buzzer_module
 #(
-   parameter HOST_HZ = 27'd100_000_000 // HOST Hertz
+parameter HOST_HZ = 27'd100_000_000 // HOST Hertz
 )
 (
-   /*****************************************************
-   ** Input Signal Define **
-   *****************************************************/
-   input wire        clk ,
-   input wire        rst_n ,
-   
-   input wire        buzzer_mode_i, // 3
-   /*****************************************************
-   ** Output Signal Define **
-   *****************************************************/ 
-   output wire       buzzer_out_o /*,
-   output tone_sel*/
+/*****************************************************
+** Input Signal Define **
+*****************************************************/
+input wire clk ,
+input wire rst_n ,
+ 
+input wire       buzzer_mode_i, // 3
+input wire [9:0] cnt_row_i,
+/*****************************************************
+** Output Signal Define **
+*****************************************************/ 
+output buzzer_out_o /*,
+output tone_sel*/
 );
 
 reg tone_out;
 reg [2:0] tone_sel;
 reg [31:0] tmp;
 reg cnt_clk;
+reg [2:0] cnt;
 
-always@(posedge clk) begin
+
+always@(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         tmp             <= 0;
         cnt_clk         <= 0;
@@ -50,9 +50,9 @@ reg [31:0] rest_duration_counter;
 localparam NOTE_DURATION = 27'd2000000; // adjust these values based on your needs
 localparam REST_DURATION = 27'd500000; // adjust these values based on your needs
 
-always @ (posedge cnt_clk)
+always @ (posedge clk or negedge rst_n)
 begin
-  if(!rst_n || !buzzer_mode_i)
+  if(!rst_n || !buzzer_mode_i) 
   begin
     tone_sel <= 0;
     note_duration_counter <= 0;
@@ -72,9 +72,8 @@ begin
     begin
       note_duration_counter <= 0;
       rest_duration_counter <= 0;
-
       if(tone_sel < 3'b111)
-        tone_sel <= tone_sel + 1;
+        tone_sel <= cnt_row_i + 1;
       else
         tone_sel <= 0;
     end
@@ -114,7 +113,6 @@ always @(*) begin
        4'd5 : hz_sel <= Sol ;
        4'd6 : hz_sel <= Ra ;
        4'd7 : hz_sel <= Si ;
-       4'd8 : hz_sel <= Hi_Do ;
        default : hz_sel <= Mute;
     endcase
 end
@@ -122,7 +120,7 @@ end
 /*****************************************************
 ** Generate Tone Pulse
 *****************************************************/
-always @(posedge clk) begin 
+always @(posedge clk or negedge rst_n) begin 
    if (!rst_n) begin
        hz_cnt <= 'd0;
        tone_out <= 1'b0;

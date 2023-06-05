@@ -38,7 +38,7 @@ wire [10:0]             sum;
 // |-2   0   2 |
 // |-1   0   1 |
 // +-----------+
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         gx              <= 'd0;
         gy              <= 'd0;

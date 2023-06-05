@@ -1,6 +1,6 @@
 module preprocess_module
 #(
-    parameter       MAX_ROW = 540,
+    parameter       MAX_ROW = 360,
     parameter       MAX_COL = 540
 )
 (
@@ -40,9 +40,9 @@ module preprocess_module
 );
 
 //8x(3x(540))       
-reg  [MAX_COL-1:0][7:0]         buffer_0;     
-reg  [MAX_COL-1:0][7:0]         buffer_1;  
-reg  [MAX_COL-1:0][7:0]         buffer_2;  
+reg  [MAX_COL+1:0][7:0]         buffer_0;     
+reg  [MAX_COL+1:0][7:0]         buffer_1;  
+reg  [MAX_COL+1:0][7:0]         buffer_2;  
 
 //MEM controller --> BUFFER
 reg [1:0]                    cnt_buf_row;            //Count row
@@ -53,7 +53,7 @@ reg [9:0]                    cnt_pos_col;
 
 
 //Fetch CNT
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         cnt_buf_row         <= 'd0;
         cnt_buf_col         <= 'd0;
@@ -78,7 +78,7 @@ end
 
 
 //Filter POS
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         buffer_0                      <= 'd0;
         buffer_1                      <= 'd0;
@@ -96,13 +96,13 @@ end
 //==========================================================================================
 
 //Filter Pos CNT
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         cnt_pos_col         <= 'd0;
     end
     else begin
         if(core_run_i) begin
-            if(cnt_pos_col == MAX_COL-1-2) begin
+            if(cnt_pos_col == MAX_COL-1) begin
                 cnt_pos_col         <= 'd0;
             end
             else begin
@@ -119,7 +119,7 @@ end
 
 
 // ======== TO Controller ===========================
-assign core_done_o      = (cnt_pos_col == MAX_COL-3)? 1 : 0;
+assign core_done_o      = (cnt_pos_col == MAX_COL-1)? 1 : 0;
 
 // ======== TO CORE ===========================
 assign data_0_0_o       = (core_run_i)? buffer_0[cnt_pos_col] : 'd0;
