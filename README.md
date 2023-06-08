@@ -13,7 +13,7 @@ The Sobel filter is implemented using the following modules and components:
 
 ## Image and Operation Details
 
-The project uses a 540x540 black and white road image as the input. The Sobel filter operation is applied to this image, generating an output image that highlights the edges and gradients within the original image.
+The project uses a 540x360 black and white road image as the input. The Sobel filter operation is applied to this image, generating an output image that highlights the edges and gradients within the original image.
 
 ## Final Term Project Assignment
 
